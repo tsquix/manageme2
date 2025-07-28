@@ -1,3 +1,9 @@
+import CreateProject from "@/components/CreateProject";
+
 export default function Home() {
-  return <div>xd</div>;
+  return (
+    <div>
+      <CreateProject />
+    </div>
+  );
 }
