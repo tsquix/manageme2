@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Priority, Story, Status } from "../types";
+import type { Priority, Story, Status, AddEditView, Project } from "../types";
 import { useProjects } from "@/contexts/ProjectContext";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
@@ -10,6 +10,11 @@ export default function StoryForm({
   setStoryState,
   activeProject,
   initialStory,
+}: {
+  storyState: AddEditView;
+  setStoryState: (state: AddEditView) => void;
+  activeProject: Project;
+  initialStory: Story | null;
 }) {
   const { updateProject } = useProjects();
 
@@ -26,7 +31,7 @@ export default function StoryForm({
     }
   );
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setStory((prev) => ({
       ...prev,
@@ -58,7 +63,7 @@ export default function StoryForm({
         onChange={handleChange}
         placeholder="Nazwa historii"
       />
-      
+
       <Input
         label="Opis"
         name="opis"
@@ -66,7 +71,7 @@ export default function StoryForm({
         onChange={handleChange}
         placeholder="Opis historii"
       />
-      
+
       <Select
         label="Priorytet"
         name="priorytet"
@@ -78,7 +83,7 @@ export default function StoryForm({
           { value: "wysoki", label: "Wysoki" },
         ]}
       />
-      
+
       <Select
         label="Stan"
         name="stan"
@@ -90,7 +95,7 @@ export default function StoryForm({
           { value: "done", label: "Done" },
         ]}
       />
-      
+
       <Input
         label="ID właściciela"
         name="wlasciciel"
@@ -98,24 +103,21 @@ export default function StoryForm({
         onChange={handleChange}
         placeholder="ID właściciela"
       />
-      
+
       {storyState === "add" && (
-        <Button 
-          variant="primary" 
-          onClick={() => addStory(story)}
-        >
+        <Button variant="primary" onClick={() => addStory(story)}>
           Utwórz
         </Button>
       )}
-      
+
       {storyState === "edit" && (
-        <Button 
-          variant="success" 
-          onClick={() => updateStory(story)}
-        >
+        <Button variant="success" onClick={() => updateStory(story)}>
           Zapisz
         </Button>
       )}
+      <Button variant="danger" onClick={() => setStoryState("view")}>
+        X
+      </Button>
     </div>
   );
 }

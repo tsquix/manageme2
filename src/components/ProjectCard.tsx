@@ -10,9 +10,9 @@ export default function ProjectCard({
   onClick,
 }: {
   proj: Project;
-  showEditOptions?: boolean;
+  showEdit?: boolean;
 }) {
-  const { setActiveProject, deleteProject, updateProject } = useProjects();
+  const { deleteProject, updateProject } = useProjects();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState<Project>({
     id: proj.id,
@@ -20,7 +20,7 @@ export default function ProjectCard({
     description: proj.description,
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditedProject((prev) => ({ ...prev, [name]: value }));
   };

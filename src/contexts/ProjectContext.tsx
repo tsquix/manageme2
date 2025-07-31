@@ -1,4 +1,3 @@
-// contexts/ProjectContext.tsx
 import React, {
   createContext,
   useContext,
@@ -11,12 +10,11 @@ import type { Project } from "../types";
 interface ProjectContextType {
   activeProject: Project | null;
   projects: Project[];
+
   setActiveProject: (project: Project | null) => void;
   createProject: (project: Project) => void;
   deleteProject: (id: string) => void;
   updateProject: (id: string, updatedData: Partial<Project>) => void;
-  //   addProject: (project: Project) => void;
-  //   loading: boolean;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -63,20 +61,20 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     }
   }, [activeProject]);
 
-  const saveToStorage = (projects: Project[]) => {
-    localStorage.setItem("projects", JSON.stringify(projects));
-    setProjects(projects);
-  };
+  const saveToStorage = (data: Project[], key: "projects") => {
+    localStorage.setItem(key, JSON.stringify(data));
 
+    setProjects(data as Project[]);
+  };
   const createProject = (project: Project) => {
     const newProject = { ...project, id: Date.now().toString() };
     const updated = [...projects, newProject];
-    saveToStorage(updated);
+    saveToStorage(updated, "projects");
   };
 
   const deleteProject = (id: string) => {
     const updated = projects.filter((p) => p.id !== id);
-    saveToStorage(updated);
+    saveToStorage(updated, "projects");
     if (activeProject?.id === id) {
       setActiveProjectState(null);
       localStorage.removeItem("activeProject");
@@ -87,7 +85,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const updated = projects.map((project) =>
       project.id === id ? { ...project, ...updatedData } : project
     );
-    saveToStorage(updated);
+    saveToStorage(updated, "projects");
     if (activeProject?.id === id) {
       const updatedProject = updated.find((p) => p.id === id) || null;
       setActiveProjectState(updatedProject);
@@ -111,6 +109,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       value={{
         activeProject,
         projects,
+
         setActiveProject,
         createProject,
         deleteProject,
