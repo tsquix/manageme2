@@ -55,13 +55,17 @@ export default function StoryForm({
   };
 
   return (
-    <div className="flex flex-col gap-4 mb-12">
+    <div className="flex flex-col gap-4 mb-12 max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      <h2 className="text-2xl font-bold text-blue-700 mb-2">
+        {storyState === "add" ? "Dodaj historię" : "Edytuj historię"}
+      </h2>
       <Input
         label="Nazwa"
         name="nazwa"
         value={story.nazwa}
         onChange={handleChange}
         placeholder="Nazwa historii"
+        className="mb-2"
       />
 
       <Input
@@ -70,6 +74,7 @@ export default function StoryForm({
         value={story.opis}
         onChange={handleChange}
         placeholder="Opis historii"
+        className="mb-2"
       />
 
       <Select
@@ -82,6 +87,7 @@ export default function StoryForm({
           { value: "średni", label: "Średni" },
           { value: "wysoki", label: "Wysoki" },
         ]}
+        className="mb-2"
       />
 
       <Select
@@ -94,6 +100,7 @@ export default function StoryForm({
           { value: "doing", label: "Doing" },
           { value: "done", label: "Done" },
         ]}
+        className="mb-2"
       />
 
       <Input
@@ -102,22 +109,37 @@ export default function StoryForm({
         value={story.wlasciciel}
         onChange={handleChange}
         placeholder="ID właściciela"
+        className="mb-2"
       />
 
-      {storyState === "add" && (
-        <Button variant="primary" onClick={() => addStory(story)}>
-          Utwórz
-        </Button>
-      )}
+      <div className="flex gap-3 mt-4">
+        {storyState === "add" && (
+          <Button
+            variant="primary"
+            onClick={() => addStory(story)}
+            className="flex-1 py-2 text-lg"
+          >
+            Utwórz
+          </Button>
+        )}
 
-      {storyState === "edit" && (
-        <Button variant="success" onClick={() => updateStory(story)}>
-          Zapisz
+        {storyState === "edit" && (
+          <Button
+            variant="success"
+            onClick={() => updateStory(story)}
+            className="flex-1 py-2 text-lg"
+          >
+            Zapisz
+          </Button>
+        )}
+        <Button
+          variant="danger"
+          onClick={() => setStoryState("view")}
+          className="flex-1 py-2 text-lg"
+        >
+          Anuluj
         </Button>
-      )}
-      <Button variant="danger" onClick={() => setStoryState("view")}>
-        X
-      </Button>
+      </div>
     </div>
   );
 }

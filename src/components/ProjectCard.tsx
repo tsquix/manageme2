@@ -43,22 +43,37 @@ export default function ProjectCard({
 
   return (
     <div className="p-4">
-      <div key={proj.id} className="border p-2 mb-2 max-w-lg">
+      <div
+        key={proj.id}
+        className="border p-4 mb-4 max-w-lg rounded-xl shadow-md bg-white hover:shadow-lg transition-shadow duration-200"
+      >
         {!isEditing ? (
-          <div onClick={onClick} className={onClick ? "cursor-pointer" : ""}>
-            <h3 className="font-bold">id: {proj.id}</h3>
-            <h3 className="font-bold">name: {proj.name}</h3>
-            <p>desc: {proj.description}</p>
+          <div
+            onClick={onClick}
+            className={
+              onClick
+                ? "cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition"
+                : ""
+            }
+          >
+            <h3 className="font-bold text-lg text-blue-700 mb-1">
+              ID: {proj.id}
+            </h3>
+            <h3 className="font-bold text-xl mb-2">{proj.name}</h3>
+            <p className="text-gray-600">{proj.description}</p>
           </div>
         ) : (
           <div>
-            <h3 className="font-bold">id: {proj.id}</h3>
+            <h3 className="font-bold text-lg text-blue-700 mb-2">
+              ID: {proj.id}
+            </h3>
             <Input
               label="Nazwa"
               name="name"
               value={editedProject.name}
               onChange={handleChange}
               placeholder="Nazwa projektu"
+              className="mb-2"
             />
             <Input
               label="Opis"
@@ -66,26 +81,43 @@ export default function ProjectCard({
               value={editedProject.description}
               onChange={handleChange}
               placeholder="Opis projektu"
+              className="mb-2"
             />
           </div>
         )}
         {showEdit && (
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-4">
             {!isEditing ? (
               <>
-                <Button variant="primary" onClick={() => setIsEditing(true)}>
+                <Button
+                  variant="primary"
+                  onClick={() => setIsEditing(true)}
+                  className="w-24"
+                >
                   Edytuj
                 </Button>
-                <Button variant="danger" onClick={handleDelete}>
+                <Button
+                  variant="danger"
+                  onClick={handleDelete}
+                  className="w-24"
+                >
                   Usuń
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="success" onClick={handleUpdate}>
+                <Button
+                  variant="success"
+                  onClick={handleUpdate}
+                  className="w-24"
+                >
                   Zapisz
                 </Button>
-                <Button variant="danger" onClick={() => setIsEditing(false)}>
+                <Button
+                  variant="danger"
+                  onClick={() => setIsEditing(false)}
+                  className="w-24"
+                >
                   Anuluj
                 </Button>
               </>

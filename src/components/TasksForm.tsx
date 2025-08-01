@@ -101,31 +101,34 @@ export default function TasksForm({
   }
 
   return (
-    <div className="flex flex-col gap-4 mb-12">
+    <div className="flex flex-col gap-4 mb-12 max-w-lg mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      <h2 className="text-2xl font-bold text-blue-700 mb-2">
+        {taskState === "add" ? "Dodaj zadanie" : "Edytuj zadanie"}
+      </h2>
       <Input
         label="Nazwa"
         name="nazwa"
         value={newTask.nazwa}
         onChange={handleChange}
         placeholder="Nazwa zadania"
+        className="mb-2"
       />
-
       <Input
         label="Opis"
         name="opis"
         value={newTask.opis}
         onChange={handleChange}
         placeholder="Opis zadania"
+        className="mb-2"
       />
-
       <Input
         label="ID Story"
         name="storyID"
         value={newTask.storyID}
         onChange={handleChange}
         placeholder="ID powiązanej historyjki"
+        className="mb-2"
       />
-
       <Input
         label="Przewidywany czas (h)"
         name="przewidywanyCzas"
@@ -133,8 +136,8 @@ export default function TasksForm({
         value={newTask.przewidywanyCzas.toString()}
         onChange={handleChange}
         placeholder="np. 3"
+        className="mb-2"
       />
-
       <Select
         label="Priorytet"
         name="priorytet"
@@ -145,8 +148,8 @@ export default function TasksForm({
           { value: "średni", label: "Średni" },
           { value: "wysoki", label: "Wysoki" },
         ]}
+        className="mb-2"
       />
-
       <Select
         label="Stan"
         name="stan"
@@ -157,8 +160,8 @@ export default function TasksForm({
           { value: "doing", label: "Doing" },
           { value: "done", label: "Done" },
         ]}
+        className="mb-2"
       />
-
       {(newTask.stan === "doing" || newTask.stan === "done") && (
         <Select
           label="Odpowiedzialny użytkownik"
@@ -172,9 +175,9 @@ export default function TasksForm({
             }));
           }}
           options={userOptions}
+          className="mb-2"
         />
       )}
-
       {newTask.stan === "doing" && (
         <Input
           label="Data startu"
@@ -182,9 +185,9 @@ export default function TasksForm({
           type="datetime-local"
           value={newTask.dataStartu || ""}
           onChange={handleChange}
+          className="mb-2"
         />
       )}
-
       {newTask.stan === "done" && (
         <Input
           label="Data zakończenia"
@@ -192,48 +195,51 @@ export default function TasksForm({
           type="datetime-local"
           value={newTask.dataZakonczenia || ""}
           onChange={handleChange}
+          className="mb-2"
         />
       )}
-
-      {taskState === "add" && (
-        <Button
-          variant="primary"
-          onClick={() => {
-            if (newTask.nazwa.trim()) {
-              createTask(newTask);
-              setNewTask(initialTask);
+      <div className="flex gap-3 mt-4">
+        {taskState === "add" && (
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (newTask.nazwa.trim()) {
+                createTask(newTask);
+                setNewTask(initialTask);
+                setTaskState("view");
+              }
+            }}
+            className="flex-1 py-2 text-lg"
+          >
+            Utwórz
+          </Button>
+        )}
+        {taskState === "edit" && (
+          <Button
+            variant="success"
+            onClick={() => {
+              updateTask(editedTask.id, newTask);
               setTaskState("view");
-            }
-          }}
-        >
-          Utwórz
-        </Button>
-      )}
-
-      {taskState === "edit" && (
+              setNewTask(initialTask);
+              setEditedTask(null);
+            }}
+            className="flex-1 py-2 text-lg"
+          >
+            Zapisz
+          </Button>
+        )}
         <Button
-          variant="success"
+          variant="danger"
           onClick={() => {
-            updateTask(editedTask.id, newTask);
             setTaskState("view");
             setNewTask(initialTask);
             setEditedTask(null);
           }}
+          className="flex-1 py-2 text-lg"
         >
-          Zapisz
+          Anuluj
         </Button>
-      )}
-
-      <Button
-        variant="danger"
-        onClick={() => {
-          setTaskState("view");
-          setNewTask(initialTask);
-          setEditedTask(null);
-        }}
-      >
-        Anuluj
-      </Button>
+      </div>
     </div>
   );
 }

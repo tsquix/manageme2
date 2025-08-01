@@ -20,56 +20,114 @@ export default function TaskCard({
   const { deleteTask } = useTasks();
 
   if (!task) {
-    return <h2 className="p-4">select task to see details</h2>;
-  }
-  if (task) {
     return (
-      <>
-        <div className="p-4">
-          <h2 className="mb-4">task details:</h2>
-          <p>nazwa: {task.nazwa}</p>
-          <p>opis: {task.opis}</p>
-          <p>Priorytet: {task.priorytet}</p>
-          <p>id przypis story: {task.storyID}</p>
-          <p>przewidywany czas: {task.przewidywanyCzas} h</p>
-          <p>Stan: {task.stan}</p>
-          <p>
-            data dodania:{" "}
-            {new Date(task.dataDodania).toLocaleDateString("pl-PL")}
-          </p>
-          <p>data startu {task.dataStartu}</p>
-          <p>data zakonczenia {task.dataZakonczenia}</p>
-          <p>uztykownik: {task.odpowiedzialnyUzytkownik}</p>
-          <div className=" flex gap-4">
-            <button onClick={() => deleteTask(task.id)} className="bg-red-300">
-              delete
-            </button>
-
-            <button
-              onClick={() => {
-                if (taskState === "edit") {
-                  setEditedTask(null);
-                  setTaskState("view");
-                } else {
-                  setEditedTask(task);
-                  setTaskState("edit");
-                }
-              }}
-              className="bg-blue-300"
-            >
-              {taskState === "edit" ? "Cancel Edit" : "Edit Task"}
-            </button>
-          </div>
-          {taskState === "edit" && (
-            <TasksForm
-              taskState={taskState}
-              setTaskState={setTaskState}
-              editedTask={task}
-              setEditedTask={setEditedTask}
-            />
-          )}
-        </div>
-      </>
+      <h2 className="p-4 text-gray-500">
+        Wybierz zadanie, aby zobaczyć szczegóły
+      </h2>
     );
   }
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 max-w-lg mx-auto mb-6 border">
+      <h2 className="text-2xl font-bold text-blue-700 mb-2">{task.nazwa}</h2>
+      <p className="text-gray-700 mb-2">{task.opis}</p>
+      <div className="flex gap-2 mb-2">
+        <span
+          className={`px-2 py-1 rounded text-xs font-semibold ${
+            task.priorytet === "wysoki"
+              ? "bg-red-200 text-red-800"
+              : task.priorytet === "średni"
+              ? "bg-yellow-200 text-yellow-800"
+              : "bg-green-200 text-green-800"
+          }`}
+        >
+          {task.priorytet}
+        </span>
+        <span
+          className={`px-2 py-1 rounded text-xs font-semibold ${
+            task.stan === "done"
+              ? "bg-green-200 text-green-800"
+              : task.stan === "doing"
+              ? "bg-yellow-200 text-yellow-800"
+              : "bg-gray-200 text-gray-800"
+          }`}
+        >
+          {task.stan}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-2">
+        <div>
+          <span className="font-semibold text-gray-600">ID:</span>{" "}
+          <span className="text-gray-800">{task.id}</span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">Story ID:</span>{" "}
+          <span className="text-gray-800">{task.storyID || "Brak"}</span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">
+            Przewidywany czas:
+          </span>{" "}
+          <span className="text-gray-800">{task.przewidywanyCzas} h</span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">Odpowiedzialny:</span>{" "}
+          <span className="text-gray-800">
+            {task.odpowiedzialnyUzytkownik || "Brak"}
+          </span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">Data dodania:</span>{" "}
+          <span className="text-gray-800">
+            {new Date(task.dataDodania).toLocaleString()}
+          </span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">Data startu:</span>{" "}
+          <span className="text-gray-800">
+            {task.dataStartu
+              ? new Date(task.dataStartu).toLocaleString()
+              : "Brak"}
+          </span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-600">Data zakończenia:</span>{" "}
+          <span className="text-gray-800">
+            {task.dataZakonczenia
+              ? new Date(task.dataZakonczenia).toLocaleString()
+              : "Brak"}
+          </span>
+        </div>
+      </div>
+      <div className="flex gap-4 mt-4">
+        <button
+          onClick={() => deleteTask(task.id)}
+          className="px-4 py-2 rounded bg-red-200 hover:bg-red-400 text-red-900 text-sm font-semibold transition"
+        >
+          Usuń
+        </button>
+        <button
+          onClick={() => {
+            if (taskState === "edit") {
+              setEditedTask(null);
+              setTaskState("view");
+            } else {
+              setEditedTask(task);
+              setTaskState("edit");
+            }
+          }}
+          className="px-4 py-2 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-sm font-semibold transition"
+        >
+          {taskState === "edit" ? "Anuluj edycję" : "Edytuj"}
+        </button>
+      </div>
+      {taskState === "edit" && (
+        <TasksForm
+          taskState={taskState}
+          setTaskState={setTaskState}
+          editedTask={task}
+          setEditedTask={setEditedTask}
+        />
+      )}
+    </div>
+  );
 }
