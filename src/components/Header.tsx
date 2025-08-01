@@ -3,6 +3,7 @@ import { signOut } from "next-auth/react";
 import type { User } from "../types/index";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { useEffect } from "react";
 const users: User[] = [
   {
     id: "0",
@@ -26,16 +27,22 @@ const users: User[] = [
 
 export default function Header() {
   const { data: session } = useSession();
-  // useEffect(() => {
-  //   console.log(session);
-  // }, [session]);
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
 
   const getUserData = async () => {
-    try {
-      const response = await axios.get("/api/user");
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    if (!session) return;
+    if (session?.user?.provider === "google") {
+      console.log(session.user);
+    }
+    if (session?.user?.provider !== "google") {
+      try {
+        const response = await axios.get("/api/user");
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     }
   };
   return (
@@ -97,12 +104,14 @@ export default function Header() {
               Wyloguj
             </button>
           ) : (
-            <Link
-              href={"/sign-up"}
-              className="px-4 py-1 bg-green-50 rounded-xl hover:bg-green-400 transition font-semibold"
-            >
-              Rejestracja
-            </Link>
+            <>
+              <Link
+                href={"/sign-up"}
+                className="px-4 py-1 bg-green-50 rounded-xl hover:bg-green-400 transition font-semibold"
+              >
+                Zaloguj sie
+              </Link>
+            </>
           )}
         </div>
       </div>

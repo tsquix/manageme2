@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import User from "../../../../models/User";
 import connectMongoDB from "../../../../lib/mongoose";
@@ -40,17 +41,34 @@ export const authOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+
+        if (account?.provider === "google") {
+          token.role = "guest";
+          token.provider = "google";
+        }
+
+        if (account?.provider === "credentials") {
+          const dbUser = await User.findOne({ email: user.email });
+          token.role = dbUser?.role;
+        }
       }
       return token;
     },
+
     async session({ session, token }) {
       if (session?.user) {
         session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.provider = token.provider;
       }
       return session;
     },
