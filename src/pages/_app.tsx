@@ -3,14 +3,17 @@ import type { AppProps } from "next/app";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import Layout from "@/components/Layout";
 import { TaskProvider } from "@/contexts/TaskContext";
-export default function App({ Component, pageProps }: AppProps) {
+import { SessionProvider } from "next-auth/react";
+export default function App({ session, Component, pageProps }: AppProps) {
   return (
-    <ProjectProvider>
-      <TaskProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </TaskProvider>
-    </ProjectProvider>
+    <SessionProvider session={session}>
+      <ProjectProvider>
+        <TaskProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </TaskProvider>
+      </ProjectProvider>
+    </SessionProvider>
   );
 }

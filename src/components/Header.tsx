@@ -1,6 +1,8 @@
-import { useProjects } from "@/contexts/ProjectContext";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import type { User } from "../types/index";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 const users: User[] = [
   {
     id: "0",
@@ -23,6 +25,19 @@ const users: User[] = [
 ];
 
 export default function Header() {
+  const { data: session } = useSession();
+  // useEffect(() => {
+  //   console.log(session);
+  // }, [session]);
+
+  const getUserData = async () => {
+    try {
+      const response = await axios.get("/api/user");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
   return (
     <div className=" flex bg-green-200 text-black gap-8 px-8 py-4">
       {" "}
@@ -53,6 +68,22 @@ export default function Header() {
           {user.role} {user.firstName} {user.lastName}
         </div>
       ))}
+      {session ? (
+        <button
+          onClick={() => signOut()}
+          className="px-5 py-1 bg-green-50 rounded-2xl hover:bg-red-400"
+        >
+          Wyloguj
+        </button>
+      ) : (
+        <Link
+          href={"/sign-up"}
+          className="px-5 py-1 bg-green-50 rounded-2xl hover:bg-green-400"
+        >
+          <span>sign-up</span>
+        </Link>
+      )}
+      <button onClick={() => getUserData()}>get user data</button>
     </div>
   );
 }
