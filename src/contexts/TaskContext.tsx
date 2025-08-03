@@ -5,7 +5,8 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { Task } from "@/types";
+import { Story, Task } from "@/types";
+import axios from "axios";
 
 interface TaskContextType {
   tasks: Task[];
@@ -30,49 +31,55 @@ interface TaskProviderProps {
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-
-
-  useEffect(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    if (savedTasks) {
-      try {
-        const parsedTasks = JSON.parse(savedTasks) as Task[];
-        setTasks(parsedTasks);
-      } catch (error) {
-        console.error("Błąd podczas parsowania zadań:", error);
-        localStorage.removeItem("tasks");
-      }
+  const [stories, setStories] = useState<Story[]>([]);
+  const fetchTasks = async () => {
+    const response = await axios.get("/api/task");
+    if (response.data.success) {
+      setTasks(response.data.data);
     }
+  };
+  useEffect(() => {
+    fetchTasks();
+    fetchAllStories();
   }, []);
 
-  const saveTasksToStorage = (tasksData: Task[]) => {
-    localStorage.setItem("tasks", JSON.stringify(tasksData));
-    setTasks(tasksData);
+  // const saveTasksToStorage = (tasksData: Task[]) => {
+  //   localStorage.setItem("tasks", JSON.stringify(tasksData));
+  //   setTasks(tasksData);
+  // };
+
+  const createTask = async (task: Task) => {
+    console.log(task);
+    const response = await axios.post("/api/task", task);
+
+    setTasks((prev) => [...prev, response.data.data]);
   };
 
-  const createTask = (task: Task) => {
-    const newTask = {
-      ...task,
-      id: Date.now().toString(),
-      dataDodania: new Date().toISOString(),
-    };
-    const updated = [...tasks, newTask];
-    saveTasksToStorage(updated);
-    return newTask;
+  const updateTask = async (id: string, updatedData: Partial<Task>) => {
+    const response = await axios.put("/api/task", {
+      updatedData,
+      id: id,
+    });
+    if (response.data.success) {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task._id === id ? { ...task, ...updatedData } : task
+        )
+      );
+    }
   };
-
-  const updateTask = (id: string, updatedData: Partial<Task>) => {
-    const updated = tasks.map((task) =>
-      task.id === id ? { ...task, ...updatedData } : task
-    );
-    saveTasksToStorage(updated);
+  const deleteTask = async (id: string) => {
+    const response = await axios.delete("/api/task", { data: { id } });
+    if (response.data.success) {
+      setTasks((prev) => prev.filter((task) => task._id !== id));
+    }
   };
-
-  const deleteTask = (id: string) => {
-    const updated = tasks.filter((task) => task.id !== id);
-    saveTasksToStorage(updated);
+  const fetchAllStories = async () => {
+    const response = await axios.get("/api/story");
+    if (response.data.success) {
+      setStories(response.data.data);
+    }
   };
-
   return (
     <TaskContext.Provider
       value={{
@@ -80,6 +87,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         createTask,
         updateTask,
         deleteTask,
+        stories,
       }}
     >
       {children}

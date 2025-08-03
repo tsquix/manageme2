@@ -2,41 +2,52 @@ import { useProjects } from "@/contexts/ProjectContext";
 import type { Project, User, Story, AddEditView } from "../types/index";
 import StoryForm from "./StoryForm";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function ActiveProject({
   activeProject,
 }: {
   activeProject: Project;
 }) {
-  const { updateProject, setActiveProject } = useProjects();
+  const { setActiveProject, users } = useProjects();
   const [storyState, setStoryState] = useState<AddEditView>("view");
   const [editedStory, setEditedStory] = useState<Story | null>(null);
+  const [stories, setStories] = useState<Story[]>([]);
   const [filteredStories, setFilteredStories] = useState<Story[]>(
-    activeProject.stories || []
+    stories || []
   );
 
   useEffect(() => {
-    console.log(storyState);
-  }, [storyState]);
+    fetchStories();
+  }, []);
 
   useEffect(() => {
-    setFilteredStories(activeProject.stories || []);
-  }, [activeProject]);
+    setFilteredStories(stories || []);
+  }, [stories]);
 
-  const deleteStory = (id: string) => {
-    const updated = activeProject.stories.filter((st) => st.id !== id);
-    updateProject(activeProject.id, { stories: updated });
+  const fetchStories = async () => {
+    const response = await axios.get("/api/story");
+    if (response.data.success) {
+      setStories(
+        response.data.data.filter((s) => s.projekt === activeProject._id)
+      );
+      setFilteredStories(stories || []);
+    }
+  };
+
+  const deleteStory = async (id: string) => {
+    const updated = stories.filter((st) => st._id !== id);
+    setStories(updated);
+    await axios.delete("/api/story", { data: { id } });
   };
 
   const handleSort = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (!value) {
-      setFilteredStories(activeProject.stories || []);
+      setFilteredStories(stories || []);
       return;
     }
-    const filtered = (activeProject.stories || []).filter(
-      (story) => story.stan === value
-    );
+    const filtered = (stories || []).filter((story) => story.stan === value);
     setFilteredStories(filtered);
   };
 
@@ -66,7 +77,7 @@ export default function ActiveProject({
       <div className="border p-4 mb-4 max-w-2xl rounded-xl shadow bg-white">
         <div>
           <h3 className="font-bold text-blue-700 text-lg mb-1">
-            ID: {activeProject.id}
+            ID: {activeProject._id}
           </h3>
           <h3 className="font-bold text-xl mb-2">{activeProject.name}</h3>
           <p className="text-gray-600 mb-4">{activeProject.description}</p>
@@ -86,7 +97,7 @@ export default function ActiveProject({
                 <option value="done">Done</option>
               </select>
             </div>
-            {activeProject.stories?.length > 0 ? (
+            {stories?.length > 0 ? (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredStories.map((story) => (
                   <li
@@ -95,7 +106,7 @@ export default function ActiveProject({
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs text-gray-400">
-                        ID: {story.id}
+                        ID: {story._id}
                       </span>
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -112,6 +123,9 @@ export default function ActiveProject({
                     <h5 className="font-bold text-blue-700 mb-1">
                       {story.nazwa}
                     </h5>
+                    <h5 className="font-bold text-blue-400 mb-1">
+                      {users?.find((u) => u._id === story?.wlasciciel)?.name}
+                    </h5>
                     <p className="text-gray-700 mb-2">{story.opis}</p>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">
@@ -120,7 +134,7 @@ export default function ActiveProject({
                       </span>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => deleteStory(story.id)}
+                          onClick={() => deleteStory(story._id)}
                           className="px-2 py-1 rounded bg-red-200 hover:bg-red-400 text-red-900 text-xs transition"
                           title="Usuń"
                         >
@@ -226,6 +240,8 @@ export default function ActiveProject({
             storyState={storyState}
             setStoryState={setStoryState}
             initialStory={editedStory}
+            stories={stories}
+            setStories={setStories}
           />
         )}
       </div>

@@ -1,0 +1,82 @@
+import connectMongoDB from "../../../lib/mongoose.js";
+import type { NextApiRequest, NextApiResponse } from "next";
+import Task from "../../../Models/Task";
+interface CreateProjectRequestBody {
+  name: string;
+  description: string;
+}
+
+interface UpdateProjectRequestBody {
+  id: string;
+  updatedData: {
+    name?: string;
+    description?: string;
+  };
+}
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === "POST") {
+    try {
+      await connectMongoDB();
+
+      const task = req.body;
+
+      if (!task) {
+        return res.status(400).json({ message: "Brak wymaganych danych" });
+      }
+
+      const newTask = await Task.create(task);
+
+      res.status(201).json({
+        message: "Pomyślnie utworzono task",
+        data: newTask,
+      });
+    } catch (error) {
+      console.error("Błąd serwera:", error);
+      res.status(500).json({
+        message: "Błąd serwera",
+      });
+    }
+  }
+  if (req.method === "GET") {
+    try {
+      await connectMongoDB();
+      const tasks = await Task.find({});
+      return res.status(200).json({ success: true, data: tasks });
+    } catch (error) {
+      console.error("Błąd serwera:", error);
+      res.status(500).json({
+        message: "Błąd serwera podczas ladowania projektow",
+      });
+    }
+  }
+  if (req.method === "PUT") {
+    try {
+      const { id, updatedData } = req.body;
+      await connectMongoDB();
+      console.log("ID:", id);
+      await Task.findByIdAndUpdate(id, updatedData);
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Błąd serwera:", error);
+      res.status(500).json({
+        message: "Błąd serwera ",
+      });
+    }
+  }
+  if (req.method === "DELETE") {
+    try {
+      const { id } = req.body as UpdateProjectRequestBody;
+      await connectMongoDB();
+      await Task.findByIdAndDelete(id);
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Błąd serwera:", error);
+      res.status(500).json({
+        message: "Błąd serwera ",
+      });
+    }
+  }
+}

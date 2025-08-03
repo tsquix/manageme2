@@ -3,22 +3,28 @@ import Select from "./ui/Select";
 import { useEffect, useState } from "react";
 import TasksForm from "./TasksForm";
 import { useTasks } from "@/contexts/TaskContext";
+import { useProjects } from "@/contexts/ProjectContext";
 
 export default function TaskCard({
-  taskId,
+  selectedTask,
   setEditedTask,
   setTaskState,
   taskState,
 }: {
-  taskId: string;
+  selectedTask: string;
   setEditedTask: (task: Task | null) => void;
   setTaskState: (value: AddEditView) => void;
   taskState: AddEditView;
 }) {
-  const { tasks } = useTasks();
-  const task = tasks.find((t) => t.id === taskId);
+  const { tasks, stories } = useTasks();
+  const { users } = useProjects();
+  const task = tasks.find((t) => t._id === selectedTask);
   const { deleteTask } = useTasks();
 
+  useEffect(() => {
+    console.log("xd");
+    console.log(stories);
+  }, [stories]);
   if (!task) {
     return (
       <h2 className="p-4 text-gray-500">
@@ -57,11 +63,13 @@ export default function TaskCard({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-2">
         <div>
           <span className="font-semibold text-gray-600">ID:</span>{" "}
-          <span className="text-gray-800">{task.id}</span>
+          <span className="text-gray-800">{task._id}</span>
         </div>
         <div>
-          <span className="font-semibold text-gray-600">Story ID:</span>{" "}
-          <span className="text-gray-800">{task.storyID || "Brak"}</span>
+          <span className="font-semibold text-gray-600">Story name:</span>{" "}
+          <span className="text-gray-800">
+            {stories.find((s) => s._id === task.storyId).nazwa || "Brak"}
+          </span>
         </div>
         <div>
           <span className="font-semibold text-gray-600">
@@ -72,13 +80,14 @@ export default function TaskCard({
         <div>
           <span className="font-semibold text-gray-600">Odpowiedzialny:</span>{" "}
           <span className="text-gray-800">
-            {task.odpowiedzialnyUzytkownik || "Brak"}
+            {users.find((u) => u._id === task.odpowiedzialnyUzytkownik)?.name ||
+              "Brak"}
           </span>
         </div>
         <div>
           <span className="font-semibold text-gray-600">Data dodania:</span>{" "}
           <span className="text-gray-800">
-            {new Date(task.dataDodania).toLocaleString()}
+            {new Date(task.createdAt).toLocaleString()}
           </span>
         </div>
         <div>
@@ -100,7 +109,7 @@ export default function TaskCard({
       </div>
       <div className="flex gap-4 mt-4">
         <button
-          onClick={() => deleteTask(task.id)}
+          onClick={() => deleteTask(task._id)}
           className="px-4 py-2 rounded bg-red-200 hover:bg-red-400 text-red-900 text-sm font-semibold transition"
         >
           Usuń

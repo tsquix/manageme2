@@ -1,29 +1,12 @@
 import { useEffect, useState } from "react";
-import type { AddEditView, Task, User } from "../types";
+import type { AddEditView, Story, Task, User } from "../types";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import Select from "./ui/Select";
 import { useTasks } from "@/contexts/TaskContext";
-const users: User[] = [
-  {
-    id: "0",
-    firstName: "Jan",
-    lastName: "Kowalski",
-    role: "admin",
-  },
-  {
-    id: "1",
-    firstName: "Mariusz",
-    lastName: "Trynalski",
-    role: "developer",
-  },
-  {
-    id: "2",
-    firstName: "Arkadiusz",
-    lastName: "Krawiec",
-    role: "devops",
-  },
-];
+import axios from "axios";
+import { useProjects } from "@/contexts/ProjectContext";
+
 export default function TasksForm({
   taskState,
   setTaskState,
@@ -35,27 +18,26 @@ export default function TasksForm({
   setTaskState: (value: AddEditView) => void;
   taskState: AddEditView;
 }) {
-  const { updateTask, createTask } = useTasks();
+  const { updateTask, createTask, stories } = useTasks();
+  const { users } = useProjects();
   const initialTask: Task = {
     id: "",
     nazwa: "",
     opis: "",
     priorytet: "niski",
-    storyID: "",
+    storyId: "",
     przewidywanyCzas: 0,
     stan: "todo",
     dataDodania: new Date().toISOString(),
   };
   const [newTask, setNewTask] = useState<Task>(
     editedTask || {
-      id: "",
       nazwa: "",
       opis: "",
       priorytet: "niski",
-      storyID: "",
+      storyId: "",
       przewidywanyCzas: 0,
       stan: "todo",
-      dataDodania: new Date().toISOString(),
     }
   );
   useEffect(() => {
@@ -82,12 +64,17 @@ export default function TasksForm({
       [name]: name === "przewidywanyCzas" ? parseInt(value) || 0 : value,
     }));
   };
+
+  // useEffect(() => {
+  //   fetchAllStories();
+  // }, []);
+
   // filtrowanie userow zeby wyswietlac tylko dev i devops
   let userOptions = users
     .filter((user) => user.role === "developer" || user.role === "devops")
     .map((user) => ({
-      value: user.name,
-      label: `${user.firstName} ${user.lastName} - ${user.role}`,
+      value: user._id,
+      label: `${user.name} - ${user.role}`,
     }));
 
   if (!newTask.odpowiedzialnyUzytkownik) {
@@ -99,6 +86,10 @@ export default function TasksForm({
       return 0;
     });
   }
+  let storyOptions = stories?.map((story) => ({
+    value: story._id,
+    label: `${story.nazwa}`,
+  }));
 
   return (
     <div className="flex flex-col gap-4 mb-12 max-w-lg mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
@@ -121,14 +112,23 @@ export default function TasksForm({
         placeholder="Opis zadania"
         className="mb-2"
       />
-      <Input
+
+      <Select
+        label="Story"
+        name="storyId"
+        value={newTask.storyId}
+        onChange={handleChange}
+        options={storyOptions}
+        className="mb-2"
+      />
+      {/* <Input
         label="ID Story"
-        name="storyID"
-        value={newTask.storyID}
+        name="storyId"
+        value={newTask.storyId}
         onChange={handleChange}
         placeholder="ID powiązanej historyjki"
         className="mb-2"
-      />
+      /> */}
       <Input
         label="Przewidywany czas (h)"
         name="przewidywanyCzas"
@@ -218,7 +218,7 @@ export default function TasksForm({
           <Button
             variant="success"
             onClick={() => {
-              updateTask(editedTask.id, newTask);
+              updateTask(editedTask._id, newTask);
               setTaskState("view");
               setNewTask(initialTask);
               setEditedTask(null);

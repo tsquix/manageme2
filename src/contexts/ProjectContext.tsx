@@ -5,16 +5,17 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import type { Project } from "../types";
+import type { Project, User } from "../types";
+import axios from "axios";
 
 interface ProjectContextType {
   activeProject: Project | null;
   projects: Project[];
-
+  users: User[];
   setActiveProject: (project: Project | null) => void;
-  createProject: (project: Project) => void;
-  deleteProject: (id: string) => void;
-  updateProject: (id: string, updatedData: Partial<Project>) => void;
+  createProject: (project: Project) => Promise<any>;
+  deleteProject: (id: string) => Promise<any>;
+  updateProject: (id: string, updatedData: Partial<Project>) => Promise<any>;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -36,63 +37,81 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
 }) => {
   const [activeProject, setActiveProjectState] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("projects");
-    if (saved) setProjects(JSON.parse(saved));
-
-    const savedActiveProject = localStorage.getItem("activeProject");
-    if (savedActiveProject) {
-      try {
-        const parsedActiveProject = JSON.parse(savedActiveProject);
-        setActiveProjectState(parsedActiveProject);
-      } catch (error) {
-        console.error("Błąd podczas wczytywania aktywnego projektu:", error);
-        localStorage.removeItem("activeProject");
-      }
+  const fetchUsers = async () => {
+    const response = await axios.get("/api/user/all");
+    if (response.data.success) {
+      setUsers(response.data.data);
     }
+  };
+
+  const fetchProjects = async () => {
+    const response = await axios.get("/api/project");
+    if (response.data.success) {
+      setProjects(response.data.data);
+    }
+    console.log(projects);
+  };
+  useEffect(() => {
+    fetchProjects();
+    fetchUsers();
   }, []);
 
-  useEffect(() => {
-    if (activeProject) {
-      localStorage.setItem("activeProject", JSON.stringify(activeProject));
-    } else {
-      localStorage.removeItem("activeProject");
-    }
-  }, [activeProject]);
+  // useEffect(() => {
+  //   if (activeProject) {
+  //     localStorage.setItem("activeProject", JSON.stringify(activeProject));
+  //   } else {
+  //     localStorage.removeItem("activeProject");
+  //   }
+  // }, [activeProject]);
 
-  const saveToStorage = (data: Project[], key: "projects") => {
-    localStorage.setItem(key, JSON.stringify(data));
+  const createProject = async (project: Project) => {
+    try {
+      const response = await axios.post("/api/project", {
+        name: project.name,
+        description: project.description,
+      });
 
-    setProjects(data as Project[]);
-  };
-  const createProject = (project: Project) => {
-    const newProject = { ...project, id: Date.now().toString() };
-    const updated = [...projects, newProject];
-    saveToStorage(updated, "projects");
-  };
+      setProjects((prev) => [...prev, response.data.data]);
 
-  const deleteProject = (id: string) => {
-    const updated = projects.filter((p) => p.id !== id);
-    saveToStorage(updated, "projects");
-    if (activeProject?.id === id) {
-      setActiveProjectState(null);
-      localStorage.removeItem("activeProject");
+      return response.data;
+    } catch (error) {
+      console.error("Błąd tworzenia projektu:", error);
+      throw error;
+    } finally {
     }
   };
+  const deleteProject = async (id: string) => {
+    const updated = projects.filter((p) => p._id !== id);
+    setProjects(updated);
+    await axios.delete("/api/project", { data: { id } });
+    // if (activeProject?.id === id) {
+    //   setActiveProjectState(null);
+    //   localStorage.removeItem("activeProject");
+    // }
+  };
 
-  const updateProject = (id: string, updatedData: Partial<Project>) => {
-    const updated = projects.map((project) =>
-      project.id === id ? { ...project, ...updatedData } : project
-    );
-    saveToStorage(updated, "projects");
-    if (activeProject?.id === id) {
-      const updatedProject = updated.find((p) => p.id === id) || null;
-      setActiveProjectState(updatedProject);
-      if (updatedProject) {
-        localStorage.setItem("activeProject", JSON.stringify(updatedProject));
-      }
+  const updateProject = async (id: string, updatedData: Partial<Project>) => {
+    try {
+      setProjects((prev) =>
+        prev.map((project) =>
+          project._id === id ? { ...project, ...updatedData } : project
+        )
+      );
+      await axios.put("/api/project", { id, updatedData });
+    } catch (error) {
+      fetchProjects();
+      throw error;
     }
+
+    // if (activeProject?.id === id) {
+    //   const updatedProject = updated.find((p) => p.id === id) || null;
+    //   setActiveProjectState(updatedProject);
+    //   if (updatedProject) {
+    //     localStorage.setItem("activeProject", JSON.stringify(updatedProject));
+    //   }
+    // }
   };
 
   const setActiveProject = (project: Project | null) => {
@@ -109,7 +128,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       value={{
         activeProject,
         projects,
-
+        users,
         setActiveProject,
         createProject,
         deleteProject,

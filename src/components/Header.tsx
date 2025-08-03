@@ -3,33 +3,38 @@ import { signOut } from "next-auth/react";
 import type { User } from "../types/index";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { useEffect } from "react";
-const users: User[] = [
-  {
-    id: "0",
-    firstName: "Jan",
-    lastName: "Kowalski",
-    role: "admin",
-  },
-  {
-    id: "1",
-    firstName: "Mariusz",
-    lastName: "Trynalski",
-    role: "developer",
-  },
-  {
-    id: "2",
-    firstName: "Arkadiusz",
-    lastName: "Krawiec",
-    role: "devops",
-  },
-];
+import { useEffect, useState } from "react";
+import { useProjects } from "@/contexts/ProjectContext";
+// const use: User[] = [
+//   {
+//     id: "0",
+//     firstName: "Jan",
+//     lastName: "Kowalski",
+//     role: "admin",
+//   },
+//   {
+//     id: "1",
+//     firstName: "Mariusz",
+//     lastName: "Trynalski",
+//     role: "developer",
+//   },
+//   {
+//     id: "2",
+//     firstName: "Arkadiusz",
+//     lastName: "Krawiec",
+//     role: "devops",
+//   },
+// ];
 
 export default function Header() {
   const { data: session } = useSession();
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
+  const { users } = useProjects();
+  // useEffect(() => {
+  //   console.log(users);
+  // }, [users]);
+  // useEffect(() => {
+  //   fetchUsers();
+  // }, []);
 
   const getUserData = async () => {
     if (!session) return;
@@ -38,7 +43,7 @@ export default function Header() {
     }
     if (session?.user?.provider !== "google") {
       try {
-        const response = await axios.get("/api/user");
+        const response = await axios.get("/api/user/me");
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -70,10 +75,7 @@ export default function Header() {
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <span className="font-medium">
-            Witaj,{" "}
-            <span className="font-bold">
-              {users[0].firstName} {users[0].lastName}
-            </span>
+            Witaj, <span className="font-bold">{users[0]?.name}</span>
           </span>
           <div className="hidden sm:block h-6 border-l border-green-400 mx-2" />
           <span className="font-medium">Użytkownicy:</span>
@@ -84,7 +86,7 @@ export default function Header() {
                 className="px-2 py-0.5 rounded bg-green-100 text-xs font-semibold"
                 title={user.role}
               >
-                {user.role}: {user.firstName} {user.lastName}
+                {user.role}: {user.name}
               </span>
             ))}
           </div>

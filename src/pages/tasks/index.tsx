@@ -10,8 +10,8 @@ export default function Tasks() {
   const [editedTask, setEditedTask] = useState<Task | null>();
   const [selectedTask, setSelectedTask] = useState<string>();
   useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
+    console.log(selectedTask);
+  }, [selectedTask]);
   return (
     <div className=" gap-6 bg-gradient-to-br from-blue-50 to-white min-h-screen text-black p-6">
       {/* Lista zadań */}
@@ -53,10 +53,10 @@ export default function Tasks() {
               <ul className="space-y-3">
                 {tasks.map((task) => (
                   <li
-                    key={task.id}
-                    onClick={() => setSelectedTask(task.id)}
+                    key={task._id}
+                    onClick={() => setSelectedTask(task._id)}
                     className={`border rounded-lg shadow p-3 cursor-pointer hover:bg-blue-50 transition ${
-                      task.id === selectedTask
+                      task._id === selectedTask
                         ? "bg-blue-100 border-blue-400"
                         : "bg-white"
                     }`}
@@ -77,7 +77,7 @@ export default function Tasks() {
                         {task.priorytet}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-400">ID: {task.id}</div>
+                    <div className="text-xs text-gray-400">ID: {task._id}</div>
                   </li>
                 ))}
               </ul>
@@ -96,15 +96,17 @@ export default function Tasks() {
         </div>
         {/* Szczegóły zadania */}
         <div>
-          {tasks?.length > 0 ? (
+          {selectedTask?.length > 0 ? (
             <TaskCard
               taskState={taskState}
-              taskId={selectedTask}
+              selectedTask={selectedTask}
               setEditedTask={setEditedTask}
               setTaskState={setTaskState}
             />
           ) : (
-            <p className="text-gray-500">Brak tasków.</p>
+            <h2 className="p-4 text-gray-500">
+              Wybierz zadanie, aby zobaczyć szczegóły
+            </h2>
           )}
         </div>
       </div>
@@ -129,13 +131,13 @@ export default function Tasks() {
                 .filter((task) => task.stan === column)
                 .map((task) => (
                   <div
-                    key={task.id}
+                    key={task._id}
                     className={`bg-white rounded-lg shadow p-4 mb-4 hover:shadow-lg transition cursor-pointer border ${
-                      task.id === selectedTask
+                      task._id === selectedTask
                         ? "border-blue-400 ring-2 ring-blue-200"
                         : ""
                     }`}
-                    onClick={() => setSelectedTask(task.id)}
+                    onClick={() => setSelectedTask(task._id)}
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-semibold text-blue-700">
@@ -154,7 +156,7 @@ export default function Tasks() {
                       </span>
                     </div>
                     <p className="text-gray-600 text-sm mb-2">{task.opis}</p>
-                    <div className="text-xs text-gray-400">ID: {task.id}</div>
+                    <div className="text-xs text-gray-400">ID: {task._id}</div>
                   </div>
                 ))}
             </div>

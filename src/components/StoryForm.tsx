@@ -4,30 +4,32 @@ import { useProjects } from "@/contexts/ProjectContext";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import Select from "./ui/Select";
+import axios from "axios";
 
 export default function StoryForm({
   storyState,
   setStoryState,
   activeProject,
   initialStory,
+  setStories,
+  stories,
 }: {
   storyState: AddEditView;
   setStoryState: (state: AddEditView) => void;
   activeProject: Project;
   initialStory: Story | null;
 }) {
-  const { updateProject } = useProjects();
+  const { users } = useProjects();
 
   const [story, setStory] = useState<Story>(
     initialStory || {
-      id: "",
       nazwa: "",
       opis: "",
       priorytet: "niski",
-      projekt: activeProject.id,
+      projekt: activeProject._id,
       dataUtworzenia: new Date().toISOString(),
       stan: "todo",
-      wlasciciel: "",
+      wlasciciel: null,
     }
   );
 
@@ -39,20 +41,44 @@ export default function StoryForm({
     }));
   };
 
-  const addStory = (s: Story) => {
-    const storyWithId = { ...s, id: Date.now().toString() };
-    const newStory = [...(activeProject.stories || []), storyWithId];
-    updateProject(activeProject.id, { stories: newStory });
+  const addStory = async (newStory: Story) => {
+    if (!story.wlasciciel) {
+      alert("Wybierz właściciela.");
+      return;
+    }
+
+    await axios.post("/api/story", newStory);
+    setStories((prev) => [...prev, newStory]);
+
     setStoryState("view");
   };
 
-  const updateStory = (s: Story) => {
-    const updatedStory = activeProject.stories.map((st: Story) =>
-      st.id === s.id ? s : st
-    );
-    updateProject(activeProject.id, { stories: updatedStory });
+  const updateStory = async (updatedData: Story) => {
+    if (!story.wlasciciel) {
+      alert("Wybierz właściciela.");
+      return;
+    }
+
+    const response = await axios.put("/api/story", {
+      updatedData,
+      id: updatedData._id,
+    });
+
+    if (response.data.success) {
+      setStories((prevStories) =>
+        prevStories.map((st) => (st._id === updatedData._id ? updatedData : st))
+      );
+    }
     setStoryState("view");
   };
+
+  const userOptions = [
+    { value: "", label: "Wybierz..." },
+    ...users.map((user) => ({
+      value: user._id,
+      label: `${user.name} - ${user.role}`,
+    })),
+  ];
 
   return (
     <div className="flex flex-col gap-4 mb-12 max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
@@ -103,12 +129,21 @@ export default function StoryForm({
         className="mb-2"
       />
 
-      <Input
-        label="ID właściciela"
+      {/* <Input
+        label="Właściciel"
         name="wlasciciel"
         value={story.wlasciciel}
         onChange={handleChange}
-        placeholder="ID właściciela"
+        placeholder="Właściciel"
+        className="mb-2"
+      /> */}
+
+      <Select
+        label="Właściciel"
+        name="wlasciciel"
+        value={story.wlasciciel || ""}
+        onChange={handleChange}
+        options={userOptions}
         className="mb-2"
       />
 

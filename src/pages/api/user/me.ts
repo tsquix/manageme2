@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import User from "../../../Models/User";
+import User from "../../../../Models/User";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./auth/[...nextauth]";
-import connectMongoDB from "../../../lib/mongoose";
+import { authOptions } from "../auth/[...nextauth]";
+import connectMongoDB from "../../../../lib/mongoose";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -17,8 +17,6 @@ export default async function handler(
   await connectMongoDB();
   if (req.method === "GET") {
     const user = await User.findOne({ name: username }).select("-password");
-
-    // .select("_id name ");
 
     if (!user) {
       return res.status(404).json({

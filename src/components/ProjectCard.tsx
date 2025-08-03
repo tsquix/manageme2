@@ -15,7 +15,7 @@ export default function ProjectCard({
   const { deleteProject, updateProject } = useProjects();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState<Project>({
-    id: proj.id,
+    id: proj._id,
     name: proj.name,
     description: proj.description,
   });
@@ -27,7 +27,7 @@ export default function ProjectCard({
 
   const handleUpdate = () => {
     if (editedProject.name.trim()) {
-      updateProject(proj.id!, {
+      updateProject(proj._id!, {
         name: editedProject.name,
         description: editedProject.description,
       });
@@ -37,15 +37,15 @@ export default function ProjectCard({
 
   const handleDelete = () => {
     if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
-      deleteProject(proj.id!);
+      deleteProject(proj._id!);
     }
   };
 
   return (
     <div className="p-4">
       <div
-        key={proj.id}
-        className="border p-4 mb-4 max-w-lg rounded-xl shadow-md bg-white hover:shadow-lg transition-shadow duration-200"
+        key={proj._id}
+        className="border p-4 mb-4 max-w-lg rounded-xl shadow-md bg-white hover:shadow-xl transition-shadow duration-200"
       >
         {!isEditing ? (
           <div
@@ -57,7 +57,7 @@ export default function ProjectCard({
             }
           >
             <h3 className="font-bold text-lg text-blue-700 mb-1">
-              ID: {proj.id}
+              ID: {proj._id}
             </h3>
             <h3 className="font-bold text-xl mb-2">{proj.name}</h3>
             <p className="text-gray-600">{proj.description}</p>
@@ -65,7 +65,7 @@ export default function ProjectCard({
         ) : (
           <div>
             <h3 className="font-bold text-lg text-blue-700 mb-2">
-              ID: {proj.id}
+              ID: {proj._id}
             </h3>
             <Input
               label="Nazwa"
