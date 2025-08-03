@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import type { Project, User } from "../types";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 interface ProjectContextType {
   activeProject: Project | null;
@@ -16,6 +17,7 @@ interface ProjectContextType {
   createProject: (project: Project) => Promise<any>;
   deleteProject: (id: string) => Promise<any>;
   updateProject: (id: string, updatedData: Partial<Project>) => Promise<any>;
+  isGuest: boolean;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -38,6 +40,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
   const [activeProject, setActiveProjectState] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const { data: session } = useSession();
+  const isGuest = session?.user?.role === "guest";
 
   const fetchUsers = async () => {
     const response = await axios.get("/api/user/all");
@@ -51,20 +55,11 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     if (response.data.success) {
       setProjects(response.data.data);
     }
-    console.log(projects);
   };
   useEffect(() => {
     fetchProjects();
     fetchUsers();
   }, []);
-
-  // useEffect(() => {
-  //   if (activeProject) {
-  //     localStorage.setItem("activeProject", JSON.stringify(activeProject));
-  //   } else {
-  //     localStorage.removeItem("activeProject");
-  //   }
-  // }, [activeProject]);
 
   const createProject = async (project: Project) => {
     try {
@@ -86,10 +81,10 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const updated = projects.filter((p) => p._id !== id);
     setProjects(updated);
     await axios.delete("/api/project", { data: { id } });
-    // if (activeProject?.id === id) {
-    //   setActiveProjectState(null);
-    //   localStorage.removeItem("activeProject");
-    // }
+    if (activeProject?.id === id) {
+      setActiveProjectState(null);
+      localStorage.removeItem("activeProject");
+    }
   };
 
   const updateProject = async (id: string, updatedData: Partial<Project>) => {
@@ -104,14 +99,6 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       fetchProjects();
       throw error;
     }
-
-    // if (activeProject?.id === id) {
-    //   const updatedProject = updated.find((p) => p.id === id) || null;
-    //   setActiveProjectState(updatedProject);
-    //   if (updatedProject) {
-    //     localStorage.setItem("activeProject", JSON.stringify(updatedProject));
-    //   }
-    // }
   };
 
   const setActiveProject = (project: Project | null) => {
@@ -133,6 +120,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         createProject,
         deleteProject,
         updateProject,
+        isGuest,
       }}
     >
       {children}

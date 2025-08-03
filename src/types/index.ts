@@ -5,8 +5,7 @@ export type Project = {
 };
 export type Role = "developer" | "admin" | "devops";
 export type User = {
-  firstName: string;
-  lastName: string;
+  name: string;
   role: Role;
 };
 
@@ -30,7 +29,7 @@ export type Task = {
   storyId: string;
   przewidywanyCzas: number;
   stan: Status;
-  dataDodania: string;
+  createdAt: string;
   dataStartu?: string;
   dataZakonczenia?: string;
   odpowiedzialnyUzytkownik?: string;

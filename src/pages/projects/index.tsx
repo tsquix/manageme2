@@ -6,9 +6,6 @@ import { useEffect } from "react";
 export default function ProjectPage() {
   const { projects, activeProject, setActiveProject } = useProjects();
 
-  useEffect(() => {
-    console.log(projects);
-  }, [projects]);
   return (
     <div className="bg-gradient-to-br from-blue-50 to-white min-h-screen text-black py-8 px-4">
       {activeProject ? (

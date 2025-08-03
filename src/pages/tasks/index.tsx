@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TasksForm from "../../components/TasksForm";
 import TaskCard from "@/components/TaskCard";
 import { useTasks } from "@/contexts/TaskContext";
 import { AddEditView, Task } from "@/types";
+import { useProjects } from "@/contexts/ProjectContext";
 
 export default function Tasks() {
   const { tasks } = useTasks();
+  const { isGuest } = useProjects();
   const [taskState, setTaskState] = useState<AddEditView>("view");
   const [editedTask, setEditedTask] = useState<Task | null>();
   const [selectedTask, setSelectedTask] = useState<string>();
-  useEffect(() => {
-    console.log(selectedTask);
-  }, [selectedTask]);
+
   return (
     <div className=" gap-6 bg-gradient-to-br from-blue-50 to-white min-h-screen text-black p-6">
       {/* Lista zadań */}
@@ -19,34 +19,36 @@ export default function Tasks() {
         <div className="bg-white border rounded-xl shadow-lg p-4 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-blue-700">Zadania</h2>
-            <button
-              onClick={() => {
-                if (taskState === "view") {
-                  setTaskState("add");
-                  setEditedTask(null);
-                } else {
-                  setTaskState("view");
-                  setEditedTask(null);
-                }
-              }}
-              className="flex items-center gap-2 px-3 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {!isGuest && (
+              <button
+                onClick={() => {
+                  if (taskState === "view") {
+                    setTaskState("add");
+                    setEditedTask(null);
+                  } else {
+                    setTaskState("view");
+                    setEditedTask(null);
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold transition"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Dodaj zadanie
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Dodaj zadanie
+              </button>
+            )}
           </div>
           <div className="flex-1 overflow-y-auto">
             {tasks?.length > 0 ? (

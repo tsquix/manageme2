@@ -1,49 +1,22 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import type { User } from "../types/index";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useProjects } from "@/contexts/ProjectContext";
-// const use: User[] = [
-//   {
-//     id: "0",
-//     firstName: "Jan",
-//     lastName: "Kowalski",
-//     role: "admin",
-//   },
-//   {
-//     id: "1",
-//     firstName: "Mariusz",
-//     lastName: "Trynalski",
-//     role: "developer",
-//   },
-//   {
-//     id: "2",
-//     firstName: "Arkadiusz",
-//     lastName: "Krawiec",
-//     role: "devops",
-//   },
-// ];
 
 export default function Header() {
   const { data: session } = useSession();
   const { users } = useProjects();
-  // useEffect(() => {
-  //   console.log(users);
-  // }, [users]);
-  // useEffect(() => {
-  //   fetchUsers();
-  // }, []);
 
   const getUserData = async () => {
     if (!session) return;
-    if (session?.user?.provider === "google") {
-      console.log(session.user);
-    }
+    // if (session?.user?.provider === "google") {
+    //   console.log(session.user);
+    // }
     if (session?.user?.provider !== "google") {
       try {
         const response = await axios.get("/api/user/me");
+        alert("wyswietlono dane zalogowanego uzytkownika w konsoli");
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);

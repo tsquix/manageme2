@@ -1,5 +1,5 @@
 import { useProjects } from "@/contexts/ProjectContext";
-import type { Project, User, Story, AddEditView } from "../types/index";
+import type { Project, Story, AddEditView } from "../types/index";
 import StoryForm from "./StoryForm";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -7,9 +7,9 @@ import axios from "axios";
 export default function ActiveProject({
   activeProject,
 }: {
-  activeProject: Project;
+  activeProject: Partial<Project>;
 }) {
-  const { setActiveProject, users } = useProjects();
+  const { setActiveProject, users, isGuest } = useProjects();
   const [storyState, setStoryState] = useState<AddEditView>("view");
   const [editedStory, setEditedStory] = useState<Story | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
@@ -41,7 +41,7 @@ export default function ActiveProject({
     await axios.delete("/api/story", { data: { id } });
   };
 
-  const handleSort = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     if (!value) {
       setFilteredStories(stories || []);
@@ -57,7 +57,6 @@ export default function ActiveProject({
         onClick={() => setActiveProject(null)}
         className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
       >
-        {/* Ikona strzałki w lewo */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5 text-blue-700"
@@ -101,7 +100,7 @@ export default function ActiveProject({
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredStories.map((story) => (
                   <li
-                    key={story.id}
+                    key={story._id}
                     className="border rounded-lg shadow p-4 bg-gray-50 hover:bg-gray-100 transition"
                   >
                     <div className="flex justify-between items-center mb-2">
@@ -133,72 +132,78 @@ export default function ActiveProject({
                         <span className="font-semibold">{story.stan}</span>
                       </span>
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => deleteStory(story._id)}
-                          className="px-2 py-1 rounded bg-red-200 hover:bg-red-400 text-red-900 text-xs transition"
-                          title="Usuń"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            className="size-4"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (storyState === "view") {
-                              setEditedStory(story);
-                              setStoryState("edit");
-                            } else if (editedStory === story) {
-                              setStoryState("view");
-                              setEditedStory(null);
-                            }
-                          }}
-                          className="px-2 py-1 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-xs transition"
-                          title="Edytuj"
-                        >
-                          {storyState === "edit" && editedStory === story
-                            ? "Anuluj"
-                            : "Edytuj"}
-                        </button>
+                        {!isGuest && (
+                          <>
+                            <button
+                              onClick={() => deleteStory(story._id)}
+                              className="px-2 py-1 rounded bg-red-200 hover:bg-red-400 text-red-900 text-xs transition"
+                              title="Usuń"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="size-4"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (storyState === "view") {
+                                  setEditedStory(story);
+                                  setStoryState("edit");
+                                } else if (editedStory === story) {
+                                  setStoryState("view");
+                                  setEditedStory(null);
+                                }
+                              }}
+                              className="px-2 py-1 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-xs transition"
+                              title="Edytuj"
+                            >
+                              {storyState === "edit" && editedStory === story
+                                ? "Anuluj"
+                                : "Edytuj2"}
+                            </button>{" "}
+                          </>
+                        )}
                       </div>
                     </div>
                   </li>
                 ))}
                 <li>
-                  <button
-                    className="w-full h-full min-h-[120px] flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 hover:bg-blue-100 transition"
-                    onClick={() =>
-                      setStoryState(storyState === "add" ? "view" : "add")
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 text-blue-500 mb-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  {!isGuest && (
+                    <button
+                      className="w-full h-full min-h-[120px] flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 hover:bg-blue-100 transition"
+                      onClick={() =>
+                        setStoryState(storyState === "add" ? "view" : "add")
+                      }
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <span className="text-blue-700 font-semibold">
-                      Dodaj nową historię
-                    </span>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-blue-500 mb-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span className="text-blue-700 font-semibold">
+                        Dodaj nową historię
+                      </span>
+                    </button>
+                  )}
                 </li>
               </ul>
             ) : (

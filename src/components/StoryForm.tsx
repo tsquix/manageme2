@@ -12,7 +12,6 @@ export default function StoryForm({
   activeProject,
   initialStory,
   setStories,
-  stories,
 }: {
   storyState: AddEditView;
   setStoryState: (state: AddEditView) => void;
@@ -128,15 +127,6 @@ export default function StoryForm({
         ]}
         className="mb-2"
       />
-
-      {/* <Input
-        label="Właściciel"
-        name="wlasciciel"
-        value={story.wlasciciel}
-        onChange={handleChange}
-        placeholder="Właściciel"
-        className="mb-2"
-      /> */}
 
       <Select
         label="Właściciel"

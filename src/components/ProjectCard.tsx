@@ -12,7 +12,7 @@ export default function ProjectCard({
   proj: Project;
   showEdit?: boolean;
 }) {
-  const { deleteProject, updateProject } = useProjects();
+  const { deleteProject, updateProject, isGuest } = useProjects();
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState<Project>({
     id: proj._id,
@@ -27,7 +27,7 @@ export default function ProjectCard({
 
   const handleUpdate = () => {
     if (editedProject.name.trim()) {
-      updateProject(proj._id!, {
+      updateProject(proj._id, {
         name: editedProject.name,
         description: editedProject.description,
       });
@@ -37,7 +37,7 @@ export default function ProjectCard({
 
   const handleDelete = () => {
     if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
-      deleteProject(proj._id!);
+      deleteProject(proj._id);
     }
   };
 
@@ -85,7 +85,7 @@ export default function ProjectCard({
             />
           </div>
         )}
-        {showEdit && (
+        {showEdit && !isGuest && (
           <div className="flex gap-2 mt-4">
             {!isEditing ? (
               <>

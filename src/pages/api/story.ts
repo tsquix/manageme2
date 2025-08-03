@@ -2,10 +2,8 @@ import connectMongoDB from "../../../lib/mongoose.js";
 import type { NextApiRequest, NextApiResponse } from "next";
 import Project from "../../../Models/Project";
 import Story from "../../../Models/Story";
-interface CreateProjectRequestBody {
-  name: string;
-  description: string;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "./auth/[...nextauth].js";
 
 interface UpdateProjectRequestBody {
   id: string;
@@ -18,6 +16,14 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, authOptions);
+  const isGuest = session?.user?.role === "guest";
+  const isReadonlyMethod = req.method === "GET";
+
+  if (isGuest && !isReadonlyMethod) {
+    return res.status(403).json({ message: "Brak uprawnień dla roli guest" });
+  }
+
   if (req.method === "POST") {
     try {
       await connectMongoDB();

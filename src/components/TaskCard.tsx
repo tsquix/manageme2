@@ -1,6 +1,5 @@
-import { AddEditView, Task, User } from "@/types";
-import Select from "./ui/Select";
-import { useEffect, useState } from "react";
+import { AddEditView, Task } from "@/types";
+import { useEffect } from "react";
 import TasksForm from "./TasksForm";
 import { useTasks } from "@/contexts/TaskContext";
 import { useProjects } from "@/contexts/ProjectContext";
@@ -16,15 +15,10 @@ export default function TaskCard({
   setTaskState: (value: AddEditView) => void;
   taskState: AddEditView;
 }) {
-  const { tasks, stories } = useTasks();
-  const { users } = useProjects();
+  const { tasks, stories, deleteTask } = useTasks();
+  const { users, isGuest } = useProjects();
   const task = tasks.find((t) => t._id === selectedTask);
-  const { deleteTask } = useTasks();
 
-  useEffect(() => {
-    console.log("xd");
-    console.log(stories);
-  }, [stories]);
   if (!task) {
     return (
       <h2 className="p-4 text-gray-500">
@@ -107,28 +101,30 @@ export default function TaskCard({
           </span>
         </div>
       </div>
-      <div className="flex gap-4 mt-4">
-        <button
-          onClick={() => deleteTask(task._id)}
-          className="px-4 py-2 rounded bg-red-200 hover:bg-red-400 text-red-900 text-sm font-semibold transition"
-        >
-          Usuń
-        </button>
-        <button
-          onClick={() => {
-            if (taskState === "edit") {
-              setEditedTask(null);
-              setTaskState("view");
-            } else {
-              setEditedTask(task);
-              setTaskState("edit");
-            }
-          }}
-          className="px-4 py-2 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-sm font-semibold transition"
-        >
-          {taskState === "edit" ? "Anuluj edycję" : "Edytuj"}
-        </button>
-      </div>
+      {!isGuest && (
+        <div className="flex gap-4 mt-4">
+          <button
+            onClick={() => deleteTask(task._id)}
+            className="px-4 py-2 rounded bg-red-200 hover:bg-red-400 text-red-900 text-sm font-semibold transition"
+          >
+            Usuń
+          </button>
+          <button
+            onClick={() => {
+              if (taskState === "edit") {
+                setEditedTask(null);
+                setTaskState("view");
+              } else {
+                setEditedTask(task);
+                setTaskState("edit");
+              }
+            }}
+            className="px-4 py-2 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-sm font-semibold transition"
+          >
+            {taskState === "edit" ? "Anuluj edycję" : "Edytuj"}
+          </button>
+        </div>
+      )}
       {taskState === "edit" && (
         <TasksForm
           taskState={taskState}

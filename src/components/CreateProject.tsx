@@ -6,7 +6,7 @@ import Input from "./ui/Input";
 import ProjectCard from "./ProjectCard";
 
 export default function CreateProject({}) {
-  const { projects, createProject } = useProjects();
+  const { projects, createProject, isGuest } = useProjects();
 
   const [newProject, setNewProject] = useState<Project>({
     name: "",
@@ -21,40 +21,40 @@ export default function CreateProject({}) {
   return (
     <div className="bg-white text-black px-12 py-2 max-w-7xl mx-auto">
       <h1 className="mb-4 text-2xl font-bold">Zarządzanie projektami</h1>
+      {!isGuest && (
+        <div className="mb-8 p-4 border rounded-lg">
+          <h2 className="mb-2 text-xl">Utwórz nowy projekt</h2>
 
-      <div className="mb-8 p-4 border rounded-lg">
-        <h2 className="mb-2 text-xl">Utwórz nowy projekt</h2>
+          <Input
+            label="Nazwa"
+            name="name"
+            value={newProject.name}
+            onChange={handleChange}
+            placeholder="Nazwa projektu"
+            className="w-full md:w-1/2"
+          />
 
-        <Input
-          label="Nazwa"
-          name="name"
-          value={newProject.name}
-          onChange={handleChange}
-          placeholder="Nazwa projektu"
-          className="w-full md:w-1/2"
-        />
+          <Input
+            label="Opis"
+            name="description"
+            value={newProject.description}
+            onChange={handleChange}
+            placeholder="Opis projektu"
+            className="w-full md:w-1/2"
+          />
 
-        <Input
-          label="Opis"
-          name="description"
-          value={newProject.description}
-          onChange={handleChange}
-          placeholder="Opis projektu"
-          className="w-full md:w-1/2"
-        />
-
-        <Button
-          onClick={() => {
-            if (newProject.name.trim()) {
-              createProject(newProject);
-              setNewProject({ name: "", description: "" });
-            }
-          }}
-        >
-          Utwórz
-        </Button>
-      </div>
-
+          <Button
+            onClick={() => {
+              if (newProject.name.trim()) {
+                createProject(newProject);
+                setNewProject({ name: "", description: "" });
+              }
+            }}
+          >
+            Utwórz
+          </Button>
+        </div>
+      )}
       {projects.length > 0 ? (
         <div>
           <h2 className="mb-2 text-xl">Lista projektów</h2>

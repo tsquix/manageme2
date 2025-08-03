@@ -21,14 +21,13 @@ export default function TasksForm({
   const { updateTask, createTask, stories } = useTasks();
   const { users } = useProjects();
   const initialTask: Task = {
-    id: "",
     nazwa: "",
     opis: "",
     priorytet: "niski",
     storyId: "",
     przewidywanyCzas: 0,
     stan: "todo",
-    dataDodania: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
   };
   const [newTask, setNewTask] = useState<Task>(
     editedTask || {

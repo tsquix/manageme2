@@ -13,6 +13,7 @@ interface TaskContextType {
   createTask: (project: Task) => void;
   deleteTask: (id: string) => void;
   updateTask: (id: string, updatedData: Partial<Task>) => void;
+  stories: Story[];
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -43,13 +44,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     fetchAllStories();
   }, []);
 
-  // const saveTasksToStorage = (tasksData: Task[]) => {
-  //   localStorage.setItem("tasks", JSON.stringify(tasksData));
-  //   setTasks(tasksData);
-  // };
-
   const createTask = async (task: Task) => {
-    console.log(task);
     const response = await axios.post("/api/task", task);
 
     setTasks((prev) => [...prev, response.data.data]);
