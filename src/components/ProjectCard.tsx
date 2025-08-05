@@ -36,7 +36,11 @@ export default function ProjectCard({
   };
 
   const handleDelete = () => {
-    if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
+    if (
+      confirm(
+        "Czy na pewno chcesz usunąć ten projekt? Zostaną również usunięte story do niego przypisane"
+      )
+    ) {
       deleteProject(proj._id);
     }
   };
@@ -60,7 +64,12 @@ export default function ProjectCard({
               ID: {proj._id}
             </h3>
             <h3 className="font-bold text-xl mb-2">{proj.name}</h3>
-            <p className="text-gray-600">{proj.description}</p>
+            <p
+              className="text-gray-600"
+              data-testid={`project-desc-${proj.name}`}
+            >
+              {proj.description}
+            </p>
           </div>
         ) : (
           <div>
@@ -73,6 +82,7 @@ export default function ProjectCard({
               value={editedProject.name}
               onChange={handleChange}
               placeholder="Nazwa projektu"
+              dataTestId="edit-project-name"
               className="mb-2"
             />
             <Input
@@ -81,6 +91,7 @@ export default function ProjectCard({
               value={editedProject.description}
               onChange={handleChange}
               placeholder="Opis projektu"
+              dataTestId="edit-project-desc"
               className="mb-2"
             />
           </div>
@@ -93,6 +104,7 @@ export default function ProjectCard({
                   variant="primary"
                   onClick={() => setIsEditing(true)}
                   className="w-24"
+                  dataTestId={`edit-button-${editedProject.name}`}
                 >
                   Edytuj
                 </Button>
@@ -100,6 +112,7 @@ export default function ProjectCard({
                   variant="danger"
                   onClick={handleDelete}
                   className="w-24"
+                  dataTestId={`delete-button-${editedProject.name}`}
                 >
                   Usuń
                 </Button>
@@ -110,6 +123,7 @@ export default function ProjectCard({
                   variant="success"
                   onClick={handleUpdate}
                   className="w-24"
+                  dataTestId={`save-button-${editedProject.name}`}
                 >
                   Zapisz
                 </Button>

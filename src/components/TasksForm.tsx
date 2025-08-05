@@ -90,6 +90,10 @@ export default function TasksForm({
     label: `${story.nazwa}`,
   }));
 
+  if (stories.length === 0) {
+    return <div>Ładowanie danych...</div>;
+  }
+
   return (
     <div className="flex flex-col gap-4 mb-12 max-w-lg mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       <h2 className="text-2xl font-bold text-blue-700 mb-2">
@@ -113,12 +117,14 @@ export default function TasksForm({
       />
 
       <Select
+        dataTestId="story-select"
         label="Story"
         name="storyId"
         value={newTask.storyId}
         onChange={handleChange}
         options={storyOptions}
         className="mb-2"
+        disabled={stories.length === 0}
       />
       {/* <Input
         label="ID Story"

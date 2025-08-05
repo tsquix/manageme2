@@ -29,6 +29,7 @@ export default function CreateProject({}) {
             label="Nazwa"
             name="name"
             value={newProject.name}
+            dataTestId="create-project-name"
             onChange={handleChange}
             placeholder="Nazwa projektu"
             className="w-full md:w-1/2"
@@ -38,6 +39,7 @@ export default function CreateProject({}) {
             label="Opis"
             name="description"
             value={newProject.description}
+            dataTestId="create-project-desc"
             onChange={handleChange}
             placeholder="Opis projektu"
             className="w-full md:w-1/2"

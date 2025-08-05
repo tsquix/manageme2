@@ -64,7 +64,10 @@ export default function Tasks() {
                     }`}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold text-blue-700">
+                      <span
+                        className="font-semibold text-blue-700"
+                        data-testid={`task-name-${task.nazwa}`}
+                      >
                         {task.nazwa}
                       </span>
                       <span

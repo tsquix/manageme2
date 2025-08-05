@@ -68,35 +68,62 @@ export default async function handler(
   }
   if (req.method === "PUT") {
     try {
-      const { updatedData, id } = req.body as UpdateProjectRequestBody;
+      const updatedStory = req.body;
+      const { _id, ...rest } = updatedStory;
+
+      if (!_id) {
+        return res.status(400).json({ message: "Brakuje _id." });
+      }
+
       await connectMongoDB();
 
-      if (updatedData && id) {
-        const updatedStory = await Story.findByIdAndUpdate(id, updatedData, {
-          new: true,
-          runValidators: true,
-        });
+      const result = await Story.findByIdAndUpdate(_id, rest, {
+        new: true,
+        runValidators: true,
+      });
 
-        return res.status(200).json({ success: true, data: updatedStory });
-      }
+      return res.status(200).json({ success: true, data: result });
     } catch (error) {
       console.error("Błąd serwera:", error);
-      res.status(500).json({
-        message: "Błąd serwera ",
-      });
+      res.status(500).json({ message: "Błąd serwera" });
     }
   }
+
   if (req.method === "DELETE") {
     try {
-      const { id } = req.body;
+      const { id, projectId } = req.body;
+
       await connectMongoDB();
-      await Story.findByIdAndDelete(id);
-      return res.status(200).json({ success: true });
+
+      if (id) {
+        const result = await Story.findByIdAndDelete(id);
+        if (!result) {
+          return res
+            .status(404)
+            .json({ success: false, message: "Story nie znalezione." });
+        }
+        return res
+          .status(200)
+          .json({ success: true, message: "Story usunięte." });
+      } else if (projectId) {
+        const result = await Story.deleteMany({ projekt: projectId });
+        console.log(
+          `Usunięto ${result.deletedCount} stories dla projektu ${projectId}`
+        );
+        return res.status(200).json({
+          success: true,
+          message: `Usunięto ${result.deletedCount} stories.`,
+          deletedCount: result.deletedCount,
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Brakuje parametru id lub projectId.",
+        });
+      }
     } catch (error) {
-      console.error("Błąd serwera:", error);
-      res.status(500).json({
-        message: "Błąd serwera ",
-      });
+      console.error("Błąd usuwania story:", error);
+      return res.status(500).json({ success: false, message: "Błąd serwera" });
     }
   }
 }

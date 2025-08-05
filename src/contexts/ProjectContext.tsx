@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import type { Project, User } from "../types";
+import type { Project, Story, User } from "../types";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
@@ -18,6 +18,8 @@ interface ProjectContextType {
   deleteProject: (id: string) => Promise<any>;
   updateProject: (id: string, updatedData: Partial<Project>) => Promise<any>;
   isGuest: boolean;
+  setStories: (story: Story | null) => void;
+  stories: Story[];
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -41,6 +43,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const { data: session } = useSession();
+  const [stories, setStories] = useState<Story[]>([]);
   const isGuest = session?.user?.role === "guest";
 
   const fetchUsers = async () => {
@@ -78,13 +81,23 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     }
   };
   const deleteProject = async (id: string) => {
+    await axios.delete("/api/project", { data: { id } });
+    await deleteStories(id);
+
     const updated = projects.filter((p) => p._id !== id);
     setProjects(updated);
-    await axios.delete("/api/project", { data: { id } });
+
     if (activeProject?.id === id) {
       setActiveProjectState(null);
       localStorage.removeItem("activeProject");
     }
+  };
+
+  const deleteStories = async (projectId: string) => {
+    await axios.delete("/api/story", { data: { projectId } });
+
+    const updated = stories.filter((st) => st.projekt !== projectId);
+    setStories(updated);
   };
 
   const updateProject = async (id: string, updatedData: Partial<Project>) => {
@@ -121,6 +134,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         deleteProject,
         updateProject,
         isGuest,
+        stories,
+        setStories,
       }}
     >
       {children}

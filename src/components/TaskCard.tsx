@@ -62,7 +62,7 @@ export default function TaskCard({
         <div>
           <span className="font-semibold text-gray-600">Story name:</span>{" "}
           <span className="text-gray-800">
-            {stories.find((s) => s._id === task.storyId).nazwa || "Brak"}
+            {stories?.find((s) => s._id === task.storyId)?.nazwa || "Brak"}
           </span>
         </div>
         <div>
@@ -84,22 +84,26 @@ export default function TaskCard({
             {new Date(task.createdAt).toLocaleString()}
           </span>
         </div>
-        <div>
-          <span className="font-semibold text-gray-600">Data startu:</span>{" "}
-          <span className="text-gray-800">
-            {task.dataStartu
-              ? new Date(task.dataStartu).toLocaleString()
-              : "Brak"}
-          </span>
-        </div>
-        <div>
-          <span className="font-semibold text-gray-600">Data zakończenia:</span>{" "}
-          <span className="text-gray-800">
-            {task.dataZakonczenia
-              ? new Date(task.dataZakonczenia).toLocaleString()
-              : "Brak"}
-          </span>
-        </div>
+        {task.dataStartu && (
+          <div>
+            <span className="font-semibold text-gray-600">Data startu:</span>{" "}
+            <span className="text-gray-800">
+              {new Date(task.dataStartu).toLocaleString()}
+            </span>
+          </div>
+        )}
+        {task.dataZakonczenia && (
+          <div>
+            <span className="font-semibold text-gray-600">
+              Data zakończenia:
+            </span>{" "}
+            <span className="text-gray-800">
+              {task.dataZakonczenia
+                ? new Date(task.dataZakonczenia).toLocaleString()
+                : "Brak"}
+            </span>
+          </div>
+        )}
       </div>
       {!isGuest && (
         <div className="flex gap-4 mt-4">

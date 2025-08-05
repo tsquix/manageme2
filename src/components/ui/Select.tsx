@@ -12,6 +12,8 @@ type SelectProps = {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: Option[];
   className?: string;
+  disabled: boolean;
+  dataTestId: string;
 };
 
 export default function Select({
@@ -21,6 +23,8 @@ export default function Select({
   onChange,
   options,
   className = "",
+  disabled,
+  dataTestId,
 }: SelectProps) {
   return (
     <div className="flex flex-col mb-4">
@@ -34,7 +38,9 @@ export default function Select({
         name={name}
         value={value}
         onChange={onChange}
+        disabled={disabled}
         className={`border-2 px-2 py-1 text-black ${className}`}
+        data-testid={dataTestId}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

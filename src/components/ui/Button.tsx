@@ -6,6 +6,7 @@ type ButtonProps = {
   type?: "button" | "submit" | "reset";
   variant?: "primary" | "danger" | "success";
   className?: string;
+  dataTestId?: string;
 };
 
 export default function Button({
@@ -14,9 +15,10 @@ export default function Button({
   type = "button",
   variant = "primary",
   className = "",
+  dataTestId,
 }: ButtonProps) {
   const baseClasses = "px-2 py-1 rounded-md transition-colors";
-  
+
   const variantClasses = {
     primary: "bg-gray-300 hover:bg-gray-500 text-black hover:text-white",
     danger: "bg-red-300 hover:bg-red-500 text-black hover:text-white",
@@ -28,6 +30,7 @@ export default function Button({
       type={type}
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       onClick={onClick}
+      data-testid={dataTestId}
     >
       {children}
     </button>

@@ -7,6 +7,7 @@ type InputProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
+  dataTestId?: string;
 };
 
 export default function Input({
@@ -16,6 +17,7 @@ export default function Input({
   onChange,
   placeholder,
   className = "",
+  dataTestId,
 }: InputProps) {
   return (
     <div className="flex flex-col mb-4">
@@ -28,6 +30,7 @@ export default function Input({
         id={name}
         name={name}
         type="text"
+        data-testid={dataTestId}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

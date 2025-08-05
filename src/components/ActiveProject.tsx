@@ -9,10 +9,11 @@ export default function ActiveProject({
 }: {
   activeProject: Partial<Project>;
 }) {
-  const { setActiveProject, users, isGuest } = useProjects();
+  const { setActiveProject, users, isGuest, stories, setStories } =
+    useProjects();
   const [storyState, setStoryState] = useState<AddEditView>("view");
   const [editedStory, setEditedStory] = useState<Story | null>(null);
-  const [stories, setStories] = useState<Story[]>([]);
+
   const [filteredStories, setFilteredStories] = useState<Story[]>(
     stories || []
   );
@@ -28,10 +29,11 @@ export default function ActiveProject({
   const fetchStories = async () => {
     const response = await axios.get("/api/story");
     if (response.data.success) {
-      setStories(
-        response.data.data.filter((s) => s.projekt === activeProject._id)
+      const filteredByProject = response.data.data.filter(
+        (s) => s.projekt === activeProject._id
       );
-      setFilteredStories(stories || []);
+      setStories(filteredByProject);
+      setFilteredStories(filteredByProject);
     }
   };
 
@@ -166,10 +168,11 @@ export default function ActiveProject({
                               }}
                               className="px-2 py-1 rounded bg-blue-200 hover:bg-blue-400 text-blue-900 text-xs transition"
                               title="Edytuj"
+                              data-testid={`edit-story-${story.nazwa}`}
                             >
                               {storyState === "edit" && editedStory === story
                                 ? "Anuluj"
-                                : "Edytuj2"}
+                                : "Edytuj"}
                             </button>{" "}
                           </>
                         )}

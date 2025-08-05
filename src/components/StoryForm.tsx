@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Priority, Story, Status, AddEditView, Project } from "../types";
 import { useProjects } from "@/contexts/ProjectContext";
 import Button from "./ui/Button";
@@ -46,30 +46,56 @@ export default function StoryForm({
       return;
     }
 
-    await axios.post("/api/story", newStory);
-    setStories((prev) => [...prev, newStory]);
+    const response = await axios.post("/api/story", newStory);
+    const savedStory = response.data.data;
+
+    setStories((prev) => [...prev, savedStory]);
 
     setStoryState("view");
   };
 
   const updateStory = async (updatedData: Story) => {
-    if (!story.wlasciciel) {
+    if (!updatedData.wlasciciel) {
       alert("Wybierz właściciela.");
       return;
     }
 
-    const response = await axios.put("/api/story", {
-      updatedData,
-      id: updatedData._id,
-    });
+    try {
+      const response = await axios.put("/api/story", updatedData);
 
-    if (response.data.success) {
-      setStories((prevStories) =>
-        prevStories.map((st) => (st._id === updatedData._id ? updatedData : st))
-      );
+      if (response.data.success) {
+        const serverUpdatedStory = response.data.data;
+
+        setStories((prevStories) =>
+          prevStories.map((st) =>
+            st._id === serverUpdatedStory._id ? serverUpdatedStory : st
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating story:", error);
+      alert("Błąd podczas aktualizacji.");
     }
+
     setStoryState("view");
   };
+
+  // czyszczenie formularza
+  useEffect(() => {
+    if (storyState === "add") {
+      setStory({
+        nazwa: "",
+        opis: "",
+        priorytet: "niski",
+        projekt: activeProject._id,
+        dataUtworzenia: new Date().toISOString(),
+        stan: "todo",
+        wlasciciel: null,
+      });
+    } else if (storyState === "edit" && initialStory) {
+      setStory(initialStory);
+    }
+  }, [storyState, initialStory, activeProject._id]);
 
   const userOptions = [
     { value: "", label: "Wybierz..." },
@@ -153,6 +179,7 @@ export default function StoryForm({
             variant="success"
             onClick={() => updateStory(story)}
             className="flex-1 py-2 text-lg"
+            dataTestId={"story-save"}
           >
             Zapisz
           </Button>
